@@ -16,6 +16,7 @@ class ClientSerializer(serializers.ModelSerializer):
 
 
 class MailingSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Mailing
-        fields = '__all__'
+        fields = ['id', 'date_start', 'date_end', 'message', 'client_filter']
