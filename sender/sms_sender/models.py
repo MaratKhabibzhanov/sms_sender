@@ -8,7 +8,7 @@ class Message(models.Model):
 
 
 class Client(models.Model):
-    phone = models.CharField(max_length=11, validators=(RegexValidator(regex=r'7(\d{10})'),))
+    phone = models.CharField(max_length=12, validators=(RegexValidator(regex=r'\+7(\d{10})'),))
     operator_code = models.CharField(max_length=3)
     teg = models.SlugField()
 
