@@ -6,7 +6,7 @@ from sms_sender.models import Message, Client, Mailing, Tag
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
-        fields = ['id', 'send_date', 'text']
+        fields = ['id', 'text']
 
 
 class ClientSerializer(serializers.ModelSerializer):
@@ -16,6 +16,22 @@ class ClientSerializer(serializers.ModelSerializer):
 
 
 class MailingSerializer(serializers.ModelSerializer):
+    message = MessageSerializer()
+
     class Meta:
         model = Mailing
         fields = ['id', 'date_start', 'date_end', 'message', 'client_filter']
+
+    def create(self, validated_data):
+        message_data = validated_data.pop('message')
+        message = Message.objects.create(text=message_data['text'])
+        client_filter = validated_data.pop('client_filter')
+        validated_data['message'] = message
+        mailing = Mailing.objects.create(**validated_data)
+        for tag in client_filter:
+            mailing.client_filter.add(tag)
+
+        return mailing
+
+
+

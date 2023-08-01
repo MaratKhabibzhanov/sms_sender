@@ -5,7 +5,6 @@ from django.db.transaction import TransactionManagementError
 
 
 class Message(models.Model):
-    send_date = models.DateTimeField("Дата создания")
     text = models.TextField("Текст сообщения")
 
     def __str__(self):
@@ -50,3 +49,14 @@ class Mailing(models.Model):
                                 related_name='mailing', on_delete=models.PROTECT)
     client_filter = models.ManyToManyField(Tag, verbose_name="Данные для фильтрации",
                                            related_name='mailing_filter')
+
+    def save(self, *args, **kwargs):
+        return super().save(*args, **kwargs)
+
+
+class Report(models.Model):
+    send_date = models.DateTimeField("Дата и время отправки", auto_now_add=True)
+    message = models.ForeignKey(Message, verbose_name="Сообщение",
+                                related_name='report', on_delete=models.PROTECT)
+    client = models.ForeignKey(Client, verbose_name="Получатель",
+                               related_name='report', on_delete=models.PROTECT)
