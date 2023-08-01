@@ -1,7 +1,6 @@
 from django.core.exceptions import MultipleObjectsReturned
 from django.core.validators import RegexValidator
 from django.db import models, IntegrityError
-from django.db.transaction import TransactionManagementError
 
 
 class Message(models.Model):
@@ -49,9 +48,6 @@ class Mailing(models.Model):
                                 related_name='mailing', on_delete=models.PROTECT)
     client_filter = models.ManyToManyField(Tag, verbose_name="Данные для фильтрации",
                                            related_name='mailing_filter')
-
-    def save(self, *args, **kwargs):
-        return super().save(*args, **kwargs)
 
 
 class Report(models.Model):

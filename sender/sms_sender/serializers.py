@@ -1,12 +1,19 @@
 from rest_framework import serializers
 
-from sms_sender.models import Message, Client, Mailing, Tag
+from sms_sender.models import Message, Client, Mailing, Tag, Report
 
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['id', 'text']
+
+
+class ReportSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Report
+        fields = ['id', 'send_date', 'message', 'client']
 
 
 class ClientSerializer(serializers.ModelSerializer):
