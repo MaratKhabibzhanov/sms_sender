@@ -1,5 +1,3 @@
-import time
-
 from django.utils import timezone
 
 from celery import shared_task
@@ -15,6 +13,5 @@ def make_sms_send(mailing_id):
                                      Q(operator_code__in=filter_data))
     for client in clients:
         Report.objects.create(message=mailing.message, client=client)
-        time.sleep(60)
         if timezone.now() >= mailing.date_end:
             break
