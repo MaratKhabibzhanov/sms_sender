@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.utils import timezone
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from sms_sender.models import Message, Client, Mailing, Report
@@ -6,7 +6,7 @@ from sms_sender.serializers import MessageSerializer, ClientSerializer, MailingS
 from sms_sender.tasks import make_sms_send
 
 
-class MessageViewSet(ModelViewSet):
+class MessageViewSet(ReadOnlyModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
 
@@ -22,7 +22,8 @@ class MailingViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         instance = serializer.save()
-        make_sms_send.delay(instance.id)
+        if timezone.now() < instance.date_end:
+            make_sms_send.apply_async((instance.id,), eta=instance.date_start)
 
 
 class ReportViewSet(ReadOnlyModelViewSet):

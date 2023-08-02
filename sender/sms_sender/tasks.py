@@ -1,10 +1,9 @@
-import datetime
 import time
 
+from django.utils import timezone
+
 from celery import shared_task
-# from celery_singleton import Singleton
-from django.db import transaction
-from django.db.models import F, Q
+from django.db.models import Q
 from sms_sender.models import Mailing, Client, Report
 
 
@@ -16,3 +15,6 @@ def make_sms_send(mailing_id):
                                      Q(operator_code__in=filter_data))
     for client in clients:
         Report.objects.create(message=mailing.message, client=client)
+        time.sleep(60)
+        if timezone.now() >= mailing.date_end:
+            break
