@@ -148,13 +148,13 @@
 			"name": "POST",
 			"item": [
 				{
-					"name": "mailing",
+					"name": "mailing_1",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"date_start\": \"2023-08-02T11:32:00+05:00\",\n    \"date_end\": \"2023-08-02T11:34:00+05:00\",\n    \"message\": {\n        \"text\": \"gf\"\n    },\n    \"client_filter\": [\n        2\n    ]\n}",
+							"raw": "{\n    \"date_start\": \"2023-08-02T11:32:00+03:00\",\n    \"date_end\": \"2023-08-02T11:34:00+03:00\",\n    \"message\": {\n        \"text\": \"Тестовое сообщение, не обращайте внимания)\"\n    },\n    \"client_filter\": [\n        2\n    ]\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -207,6 +207,72 @@
 							"path": [
 								"api",
 								"clients",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "mailing_2",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"date_start\": \"2023-08-02T11:32:00+03:00\",\n    \"date_end\": \"2023-08-02T11:34:00+03:00\",\n    \"message\": {\n        \"text\": \"Тестовое сообщение, не обращайте внимания)\"\n    },\n    \"client_filter\": [\n        2,\n        13,\n        17,\n        22\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/mailing/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"mailing",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "mailing_3",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"date_start\": \"2023-08-02T11:32:00+03:00\",\n    \"date_end\": \"2023-08-02T11:34:00+03:00\",\n    \"message\": {\n        \"text\": \"Тестовое сообщение) не обращайте внимания)\"\n    },\n    \"client_filter\": [\n        1,\n        16,\n        22,\n        23\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/mailing/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"mailing",
 								""
 							]
 						}
