@@ -1,4 +1,3 @@
-from django.core.exceptions import MultipleObjectsReturned
 from django.core.validators import RegexValidator
 from django.db import models, IntegrityError
 
@@ -26,9 +25,7 @@ class Client(models.Model):
                 if created:
                     obj.save()
             except IntegrityError:
-                continue
-            except MultipleObjectsReturned:
-                continue
+                print('Ошибка:\n', IntegrityError)
             except Exception as e:
                 raise e
         return super().save(*args, **kwargs)

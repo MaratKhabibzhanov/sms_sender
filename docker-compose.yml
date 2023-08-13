@@ -11,6 +11,8 @@ services:
       - DB_NAME=dbname
       - DB_USER=dbuser
       - DB_PASS=pass
+      - SMS_EMAIL=skylinegtr_r34@mail.ru
+      - SMS_API_KEY=t_eXAlYUE35w3wz-ytOD3z_LqbCjS25z
 
     command: >
       sh -c "python manage.py runserver 0.0.0.0:8000"
