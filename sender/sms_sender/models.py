@@ -2,6 +2,20 @@ from django.core.validators import RegexValidator
 from django.db import models, IntegrityError
 
 
+class Code(models.Model):
+    operator_code = models.CharField("Код оператора", max_length=3, unique=True)
+
+    def __str__(self):
+        return f'{self.operator_code}'
+
+
+class Teg(models.Model):
+    teg = models.SlugField("Тег", unique=True)
+
+    def __str__(self):
+        return f'{self.teg}'
+
+
 class Message(models.Model):
     text = models.TextField("Текст сообщения")
 
@@ -12,44 +26,22 @@ class Message(models.Model):
 class Client(models.Model):
     phone = models.CharField("Номер телефона", max_length=12, unique=True,
                              validators=(RegexValidator(regex=r'\+7(\d{10})'),))
-    operator_code = models.CharField("Код оператора", max_length=3)
-    teg = models.SlugField("Тег")
+    operator_code = models.ForeignKey(Code, verbose_name="Код оператора", on_delete=models.PROTECT)
+    teg = models.ForeignKey(Teg, verbose_name="Тег", on_delete=models.PROTECT)
 
     def __str__(self):
         return f'{self.phone}'
-
-    def save(self, *args, **kwargs):
-        for filter_criterion in self.teg, self.operator_code:
-            try:
-                obj, created = Tag.objects.get_or_create(filter_data=filter_criterion)
-                if created:
-                    obj.save()
-            except IntegrityError:
-                print('Ошибка:\n', IntegrityError)
-            except Exception as e:
-                raise e
-        return super().save(*args, **kwargs)
-
-
-class Tag(models.Model):
-    filter_data = models.CharField(max_length=20, unique=True)
-
-    def __str__(self):
-        return f'{self.filter_data}'
 
 
 class Mailing(models.Model):
     date_start = models.DateTimeField("Дата создания рассылки")
     date_end = models.DateTimeField("Дата окончания рассылки")
-    message = models.ForeignKey(Message, verbose_name="Сообщение",
-                                related_name='mailing', on_delete=models.PROTECT)
-    client_filter = models.ManyToManyField(Tag, verbose_name="Данные для фильтрации",
-                                           related_name='mailing_filter')
+    message = models.ForeignKey(Message, verbose_name="Сообщение", on_delete=models.PROTECT)
+    operator_code = models.ManyToManyField(Code, verbose_name="Код оператора")
+    teg = models.ManyToManyField(Teg, verbose_name="Тег")
 
 
 class Report(models.Model):
     send_date = models.DateTimeField("Дата и время отправки", auto_now_add=True)
-    message = models.ForeignKey(Message, verbose_name="Сообщение",
-                                related_name='report', on_delete=models.PROTECT)
-    client = models.ForeignKey(Client, verbose_name="Получатель",
-                               related_name='report', on_delete=models.PROTECT)
+    message = models.ForeignKey(Message, verbose_name="Сообщение", on_delete=models.PROTECT)
+    client = models.ForeignKey(Client, verbose_name="Получатель", on_delete=models.PROTECT)

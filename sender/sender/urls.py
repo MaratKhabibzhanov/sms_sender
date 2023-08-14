@@ -17,7 +17,7 @@ from django.contrib import admin
 from django.urls import path
 from rest_framework import routers
 
-from sms_sender.views import MessageViewSet, ClientViewSet, MailingViewSet, ReportViewSet
+from sms_sender.views import MessageViewSet, ClientViewSet, MailingViewSet, ReportViewSet, CodeViewSet, TegViewSet
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,5 +28,7 @@ router.register(r'api/messages', MessageViewSet)
 router.register(r'api/clients', ClientViewSet)
 router.register(r'api/mailing', MailingViewSet)
 router.register(r'api/report', ReportViewSet)
+router.register(r'api/code', CodeViewSet)
+router.register(r'api/teg', TegViewSet)
 
 urlpatterns += router.urls

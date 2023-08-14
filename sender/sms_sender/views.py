@@ -1,8 +1,9 @@
 from django.utils import timezone
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
-from sms_sender.models import Message, Client, Mailing, Report
-from sms_sender.serializers import MessageSerializer, ClientSerializer, MailingSerializer, ReportSerializer
+from sms_sender.models import Message, Client, Mailing, Report, Code, Teg
+from sms_sender.serializers import MessageSerializer, ClientSerializer, MailingSerializer, ReportSerializer, \
+    CodeSerializer, TegSerializer
 from sms_sender.tasks import make_sms_send
 
 
@@ -14,6 +15,16 @@ class MessageViewSet(ReadOnlyModelViewSet):
 class ClientViewSet(ModelViewSet):
     queryset = Client.objects.all()
     serializer_class = ClientSerializer
+
+
+class CodeViewSet(ModelViewSet):
+    queryset = Code.objects.all()
+    serializer_class = CodeSerializer
+
+
+class TegViewSet(ModelViewSet):
+    queryset = Teg.objects.all()
+    serializer_class = TegSerializer
 
 
 class MailingViewSet(ModelViewSet):

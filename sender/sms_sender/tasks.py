@@ -14,9 +14,10 @@ from sms_sender.models import Mailing, Client, Report
 @shared_task()
 def make_sms_send(mailing_id):
     mailing = Mailing.objects.get(id=mailing_id)
-    filter_data = mailing.client_filter.values_list('filter_data', flat=True)
-    clients = Client.objects.filter(Q(teg__in=filter_data) |
-                                     Q(operator_code__in=filter_data))
+    operator_code = mailing.operator_code.all()
+    teg = mailing.teg.all()
+    clients = Client.objects.filter(Q(teg__in=teg) |
+                                     Q(operator_code__in=operator_code))
     for client in clients:
         print(f'\nНомер телефона: {client}\nСообщение: \n{mailing.message}')
         Report.objects.create(message=mailing.message, client=client)

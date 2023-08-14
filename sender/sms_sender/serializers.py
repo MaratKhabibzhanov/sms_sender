@@ -1,12 +1,24 @@
 from rest_framework import serializers
 
-from sms_sender.models import Message, Client, Mailing, Tag, Report
+from sms_sender.models import Message, Client, Mailing, Teg, Report, Code
 
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
         model = Message
         fields = ['id', 'text']
+
+
+class TegSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Teg
+        fields = ['id', 'teg']
+
+
+class CodeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Code
+        fields = ['id', 'operator_code']
 
 
 class ReportSerializer(serializers.ModelSerializer):
@@ -27,16 +39,19 @@ class MailingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mailing
-        fields = ['id', 'date_start', 'date_end', 'message', 'client_filter']
+        fields = ['id', 'date_start', 'date_end', 'message', 'operator_code', 'teg']
 
     def create(self, validated_data):
         message_data = validated_data.pop('message')
+        validates_tegs = validated_data.pop('teg')
+        validated_codes = validated_data.pop('operator_code')
         message = Message.objects.create(text=message_data['text'])
-        client_filter = validated_data.pop('client_filter')
         validated_data['message'] = message
+        tegs = Teg.objects.filter(teg__in=validates_tegs)
+        codes = Code.objects.filter(operator_code__in=validated_codes)
         mailing = Mailing.objects.create(**validated_data)
-        for tag in client_filter:
-            mailing.client_filter.add(tag)
+        mailing.teg.set(tegs)
+        mailing.operator_code.set(codes)
 
         return mailing
 
