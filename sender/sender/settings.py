@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'celery.contrib.testing.tasks',
     'rest_framework',
 
     'sms_sender',
@@ -71,7 +72,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'sender.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases

@@ -33,8 +33,7 @@ class MailingViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         instance = serializer.save()
-        if timezone.now() < instance.date_end:
-            make_sms_send.apply_async((instance.id,), eta=instance.date_start)
+        make_sms_send.apply_async((instance.id,), eta=instance.date_start)
 
 
 class ReportViewSet(ReadOnlyModelViewSet):

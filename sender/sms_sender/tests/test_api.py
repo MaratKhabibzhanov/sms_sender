@@ -4,7 +4,7 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from sms_sender.models import Report, Client, Teg
+from sms_sender.models import Report, Client, Teg, Code, Mailing, Message
 from sms_sender.serializers import TegSerializer
 
 
@@ -27,7 +27,7 @@ class TegApiTestCase(APITestCase):
         data = {"teg": "parents"}
         json_data = json.dumps(data)
         response = self.client.post(url, data=json_data,
-                                   content_type='application/json')
+                                    content_type='application/json')
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(3, Teg.objects.all().count())
 
@@ -47,3 +47,42 @@ class TegApiTestCase(APITestCase):
         response = self.client.delete(url)
         self.assertEqual(status.HTTP_204_NO_CONTENT, response.status_code)
         self.assertEqual(1, Teg.objects.all().count())
+
+
+class MailingApiTestCase(APITestCase):
+    def setUp(self):
+        self.teg_1 = Teg.objects.create(teg='not_my')
+        self.teg_2 = Teg.objects.create(teg='is_my')
+        self.teg_3 = Teg.objects.create(teg='neighbor')
+
+        self.code_1 = Code.objects.create(operator_code='985')
+        self.code_2 = Code.objects.create(operator_code='989')
+        self.code_3 = Code.objects.create(operator_code='999')
+
+        data = {
+            "date_start": "2023-08-02T13:30:00Z",
+            "date_end": "2023-08-23T13:30:00Z",
+            "message": {"text": "Test message"},
+            "operator_code": [
+                self.code_1.id,
+                self.code_2.id
+            ],
+            "teg": [
+                self.teg_2.id,
+                self.teg_3.id
+            ]
+        }
+        self.json_data = json.dumps(data)
+
+    def test_create(self):
+        self.assertEqual(0, Mailing.objects.all().count())
+        url = reverse('mailing-list')
+
+        response = self.client.post(url, data=self.json_data,
+                                    content_type='application/json')
+        message = Message.objects.all()[0]
+        mailing = Mailing.objects.all()[0]
+        self.assertEqual(status.HTTP_201_CREATED, response.status_code)
+        self.assertEqual(1, Mailing.objects.all().count())
+        self.assertEqual("Test message", message.text)
+        self.assertEqual(message, mailing.message)
