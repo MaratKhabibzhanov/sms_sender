@@ -1,15 +1,9 @@
-import time
 from datetime import timedelta
-
-from celery.contrib.testing.app import TestApp
-from celery.contrib.testing.worker import start_worker
-from django.test import TestCase, SimpleTestCase, override_settings
-
+from django.test import TestCase
 from django.utils import timezone
 
-from sms_sender.models import Mailing, Message, Teg, Code, Client, Report
+from sms_sender.models import Message, Teg, Code, Client, Report, Mailing
 from sms_sender.tasks import make_sms_send
-from celery_app import app
 
 
 class MailingApiTestCase(TestCase):
@@ -36,10 +30,11 @@ class MailingApiTestCase(TestCase):
                                               teg=self.teg_3)
 
         self.message_1 = Message.objects.create(text='Test message now')
-        self.message_2 = Message.objects.create(text='Test message past')
-        self.message_3 = Message.objects.create(text='Test message stop')
+        self.message_2 = Message.objects.create(text='Test message stop')
+        self.message_3 = Message.objects.create(text='Test message past')
 
     def test_passed(self):
+        self.assertEqual(0, Report.objects.all().count())
         mailing = Mailing.objects.create(
             date_start=timezone.now().__str__(),
             date_end=(timezone.now() + timedelta(days=3)).__str__(),
@@ -49,10 +44,36 @@ class MailingApiTestCase(TestCase):
         codes = Code.objects.filter(id__in=(self.code_2.id,))
         mailing.teg.set(tegs)
         mailing.operator_code.set(codes)
-
-        self.assertEqual(0, Report.objects.all().count())
         make_sms_send(mailing.id)
         self.assertEqual(3, Report.objects.all().count())
+
+    def test_break(self):
+        self.assertEqual(0, Report.objects.all().count())
+        mailing = Mailing.objects.create(
+            date_start=timezone.now().__str__(),
+            date_end=(timezone.now() + timedelta(seconds=2)).__str__(),
+            message=self.message_2,
+        )
+        tegs = Teg.objects.filter(id__in=(self.teg_2.id, self.teg_3.id))
+        codes = Code.objects.filter(id__in=(self.code_2.id, self.code_1.id))
+        mailing.teg.set(tegs)
+        mailing.operator_code.set(codes)
+        make_sms_send(mailing.id)
+        self.assertEqual(2, Report.objects.all().count())
+
+    def test_not_start(self):
+        self.assertEqual(0, Report.objects.all().count())
+        mailing = Mailing.objects.create(
+            date_start=(timezone.now() - timedelta(days=2)).__str__(),
+            date_end=(timezone.now() - timedelta(seconds=2)).__str__(),
+            message=self.message_3,
+        )
+        tegs = Teg.objects.filter(id__in=(self.teg_2.id, self.teg_3.id))
+        codes = Code.objects.filter(id__in=(self.code_2.id, self.code_1.id))
+        mailing.teg.set(tegs)
+        mailing.operator_code.set(codes)
+        make_sms_send(mailing.id)
+        self.assertEqual(0, Report.objects.all().count())
 
     #     data_past = {
     #         "date_start": (timezone.now() - timedelta(days=3)).__str__(),

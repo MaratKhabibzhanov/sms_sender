@@ -16,18 +16,15 @@ from sms_sender.models import Mailing, Client, Report
 @shared_task()
 def make_sms_send(mailing_id):
     mailing = Mailing.objects.get(id=mailing_id)
-    print(timezone.now())
-    print(mailing.date_end)
-    print(timezone.now() < mailing.date_end)
     if timezone.now() < mailing.date_end:
         operator_code = mailing.operator_code.all()
         teg = mailing.teg.all()
-        print(teg)
         clients = Client.objects.filter(Q(teg__in=teg) |
                                          Q(operator_code__in=operator_code))
         for client in clients:
             print(f'\nНомер телефона: {client}\nСообщение: \n{mailing.message}')
             Report.objects.create(message=mailing.message, client=client)
+            time.sleep(1)
             if timezone.now() >= mailing.date_end:
                 break
 

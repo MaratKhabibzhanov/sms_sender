@@ -1,9 +1,13 @@
 import json
+from datetime import timedelta
 
 from django.urls import reverse
+from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
+from unittest.mock import patch
 
+import sms_sender.views
 from sms_sender.models import Report, Client, Teg, Code, Mailing, Message
 from sms_sender.serializers import TegSerializer
 
@@ -59,9 +63,9 @@ class MailingApiTestCase(APITestCase):
         self.code_2 = Code.objects.create(operator_code='989')
         self.code_3 = Code.objects.create(operator_code='999')
 
-        data = {
-            "date_start": "2023-08-02T13:30:00Z",
-            "date_end": "2023-08-23T13:30:00Z",
+        data_now = {
+            "date_start": timezone.now().__str__(),
+            "date_end": (timezone.now() + timedelta(days=3)).__str__(),
             "message": {"text": "Test message"},
             "operator_code": [
                 self.code_1.id,
@@ -72,17 +76,53 @@ class MailingApiTestCase(APITestCase):
                 self.teg_3.id
             ]
         }
-        self.json_data = json.dumps(data)
+        self.json_data_now = json.dumps(data_now)
+        self.date_start_future = (timezone.now() + timedelta(seconds=100))
+
+        data_future = {
+            "date_start": self.date_start_future.__str__(),
+            "date_end": (timezone.now() + timedelta(days=3)).__str__(),
+            "message": {"text": "Test message"},
+            "operator_code": [
+                self.code_1.id,
+                self.code_2.id
+            ],
+            "teg": [
+                self.teg_2.id,
+                self.teg_3.id
+            ]
+        }
+        self.json_data_future = json.dumps(data_future)
 
     def test_create(self):
         self.assertEqual(0, Mailing.objects.all().count())
         url = reverse('mailing-list')
-
-        response = self.client.post(url, data=self.json_data,
-                                    content_type='application/json')
+        with patch('sms_sender.views.make_sms_send.apply_async'):
+            response = self.client.post(url, data=self.json_data_now,
+                                        content_type='application/json')
         message = Message.objects.all()[0]
         mailing = Mailing.objects.all()[0]
+        tegs = Teg.objects.filter(id__in=(self.teg_2.id, self.teg_3.id))
+        codes = Code.objects.filter(id__in=(self.code_1.id, self.code_2.id))
         self.assertEqual(status.HTTP_201_CREATED, response.status_code)
         self.assertEqual(1, Mailing.objects.all().count())
         self.assertEqual("Test message", message.text)
         self.assertEqual(message, mailing.message)
+        self.assertQuerysetEqual(codes, mailing.operator_code.all(), ordered=False)
+        self.assertQuerysetEqual(tegs, mailing.teg.all(), ordered=False)
+
+    def test_task_called(self):
+        url = reverse('mailing-list')
+        with patch('sms_sender.views.make_sms_send.apply_async') as mock_task:
+            self.client.post(url, data=self.json_data_now,
+                             content_type='application/json')
+            self.assertTrue(mock_task.called)
+
+    def test_task_called_future(self):
+        url = reverse('mailing-list')
+        with patch('sms_sender.views.make_sms_send.apply_async') as mock_task:
+            self.client.post(url, data=self.json_data_future,
+                             content_type='application/json')
+            mailing = Mailing.objects.all()[0]
+            self.assertTrue(mock_task.call_args)
+            mock_task.assert_called_with((mailing.id,), eta=self.date_start_future)
