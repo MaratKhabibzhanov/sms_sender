@@ -7,8 +7,7 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 from unittest.mock import patch
 
-import sms_sender.views
-from sms_sender.models import Report, Client, Teg, Code, Mailing, Message
+from sms_sender.models import Teg, Code, Mailing, Message
 from sms_sender.serializers import TegSerializer
 
 

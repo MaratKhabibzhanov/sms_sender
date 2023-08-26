@@ -1,4 +1,3 @@
-from django.utils import timezone
 from rest_framework.viewsets import ModelViewSet, ReadOnlyModelViewSet
 
 from sms_sender.models import Message, Client, Mailing, Report, Code, Teg
