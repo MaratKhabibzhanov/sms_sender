@@ -67,7 +67,7 @@ sudo docker-compose up
 
 Находясь в той же локальной директории с проектом открыть новое окно терминала и выполнить команду:
 
-sudo docker exec -i sms_sender_database_1 pg_restore -U dbuser -v -d dbname < ./sender/dump.tar
+sudo docker exec -i sms_sender_database_1 pg_restore -U dbuser -v -d dbname < ./sender/dump_1.tar
 
 После чего в первом окне терминала остановить все запущенные контейнеры: "Ctrl+C" и снова выполнить команду:
 
