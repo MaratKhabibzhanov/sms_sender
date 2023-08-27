@@ -6,26 +6,20 @@ services:
       - "8000:8000"
     volumes:
       - ./sender:/sender
-    environment:
-      - DB_HOST=database
-      - DB_NAME=dbname
-      - DB_USER=dbuser
-      - DB_PASS=pass
-      - SMS_EMAIL=skylinegtr_r34@mail.ru
-      - SMS_API_KEY=t_eXAlYUE35w3wz-ytOD3z_LqbCjS25z
 
     command: >
       sh -c "python manage.py test&python manage.py runserver 0.0.0.0:8000"
+
+    env_file:
+      - ./.env.dev
 
     depends_on:
       - database
 
   database:
     image: postgres:14.6-alpine
-    environment:
-      - POSTGRES_DB=dbname
-      - POSTGRES_USER=dbuser
-      - POSTGRES_PASSWORD=pass
+    env_file:
+      - ./.env.dev
 
   redis:
     image: redis:7.0.5-alpine
@@ -44,11 +38,8 @@ services:
     depends_on:
       - redis
       - database
-    environment:
-      - DB_HOST=database
-      - DB_NAME=dbname
-      - DB_USER=dbuser
-      - DB_PASS=pass
+    env_file:
+      - ./.env.dev
 
   flower:
     build:
