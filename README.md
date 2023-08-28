@@ -57,7 +57,7 @@
 Переменные SMSAERO_EMAIL и SMSAERO_API_KEY это email и API ключ для аутентификации в сервисе SMS Aero.
 
 Для запуска сервиса СМС рассылок необходимо склонировать к себе на локальную машину данный репозиторий.
-в окне терминала в локальной директории с проектом запустить команду:
+в окне терминала в локальной директории "sms_sender" с проектом запустить команду:
 
 sudo docker-compose build
 
@@ -72,5 +72,27 @@ sudo docker exec -i sms_sender_database_1 pg_restore -U dbuser -v -d dbname < ./
 После чего в первом окне терминала остановить все запущенные контейнеры: "Ctrl+C" и снова выполнить команду:
 
 sudo docker-compose up
+
+Для запуска тестов в окне терминала в локальной директории "sms_sender" с проектом запустить команду:
+
+sudo docker-compose run --rm web-app sh -c "python manage.py test"
+
+Полнота покрытия тестами проверена с помощью утилиты Coverage.py, отчет представлен ниже.
+
+Name                        Stmts   Miss Branch BrPart  Cover
+-------------------------------------------------------------
+celery_app.py                   8      0      0      0   100%
+sender/__init__.py              2      0      0      0   100%
+sender/settings.py             21      0      0      0   100%
+sms_sender/__init__.py          0      0      0      0   100%
+sms_sender/admin.py             8      0      0      0   100%
+sms_sender/apps.py              4      0      0      0   100%
+sms_sender/models.py           30      0      0      0   100%
+sms_sender/serializers.py      39      0      0      0   100%
+sms_sender/tasks.py            18      0      6      0   100%
+sms_sender/views.py            25      0      0      0   100%
+-------------------------------------------------------------
+TOTAL                         155      0      6      0   100%
+
 
 
