@@ -79,20 +79,8 @@ sudo docker-compose run --rm web-app sh -c "python manage.py test"
 
 Полнота покрытия тестами проверена с помощью утилиты Coverage.py, отчет представлен ниже.
 
-Name                        Stmts   Miss Branch BrPart  Cover
--------------------------------------------------------------
-celery_app.py                   8      0      0      0   100%
-sender/__init__.py              2      0      0      0   100%
-sender/settings.py             21      0      0      0   100%
-sms_sender/__init__.py          0      0      0      0   100%
-sms_sender/admin.py             8      0      0      0   100%
-sms_sender/apps.py              4      0      0      0   100%
-sms_sender/models.py           30      0      0      0   100%
-sms_sender/serializers.py      39      0      0      0   100%
-sms_sender/tasks.py            18      0      6      0   100%
-sms_sender/views.py            25      0      0      0   100%
--------------------------------------------------------------
-TOTAL                         155      0      6      0   100%
+![image](https://github.com/MaratKhabibzhanov/sms_sender/assets/99965121/1d65ae86-a259-47f2-9ab4-2a29abe3ee14)
+
 
 
 
